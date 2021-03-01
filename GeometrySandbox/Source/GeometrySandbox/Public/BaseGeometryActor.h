@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -28,6 +28,11 @@ struct FGeometryData {
 
 	UPROPERTY(EditAnywhere, Category = "Design")
 		FLinearColor Color = FLinearColor::Black;
+
+	// отвечает за чистоту срабатывания таймера (измеряется в секундах)
+	UPROPERTY(EditAnywhere, Category = "Design")
+		float TimerRate = 3.0f;
+
 };
 
 UCLASS()
@@ -70,10 +75,24 @@ public:
 private:
 	FVector InitialLocation;
 
+	// Дескриптор Таймера.
+	// Переменная которая идентифицирует однозначно Наш Таймер.
+	FTimerHandle TimerHandle;
+
+	// Количество раз сколько нужно отработать Нашему Таймеру перед тем как мы его остановим.
+	const int32 MaxTimerCount = 5;
+
+	// Счётчик срабатывания Нашего Таймера.
+	int32 TimerCount = 0;
+
 	void PrintTypes();
 	void PrintStringTypes();
 	void PrintTransform();
 	void HandleMovement();
 
 	void SetColor(const FLinearColor& Color);
+
+	// Функция будет вызываться каждый раз когда будет срабатывать Таймер.
+	void OnTimerFired();
+
 };

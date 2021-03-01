@@ -1,9 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "BaseGeometryActor.h"
 #include "Engine/Engine.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "TimerManager.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseGeometry, All, All)
 
@@ -27,6 +28,10 @@ void ABaseGeometryActor::BeginPlay() {
 	//PrintTypes();
 
 	SetColor(GeometryData.Color);
+
+	// Функция возвращает Объект - Таймер Менеджер.
+	// SetTimer() - проинициализирует Наш Таймер.
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ABaseGeometryActor::OnTimerFired, GeometryData.TimerRate, true);
 }
 
 // Called every frame
@@ -47,13 +52,6 @@ void ABaseGeometryActor::HandleMovement() {
 	}	break;
 	case EMovementType::Static: break;
 	default: break;
-	}
-}
-
-void ABaseGeometryActor::SetColor(const FLinearColor& Color) {
-	UMaterialInstanceDynamic* DynMaterial = BaseMesh->CreateAndSetMaterialInstanceDynamic(0);
-	if (DynMaterial) {
-		DynMaterial->SetVectorParameterValue("Color", Color);
 	}
 }
 
@@ -95,3 +93,25 @@ void ABaseGeometryActor::PrintTransform() {
 	UE_LOG(LogBaseGeometry, Error, TEXT("Human transform %s "), *Transform.ToHumanReadableString());
 }
 
+// При первом вызове функции SetColor() динамический материал будет создан, 
+// при повторном вызове SetColor() будет использоваться указатель на него.
+void ABaseGeometryActor::SetColor(const FLinearColor& Color) {
+	UMaterialInstanceDynamic* DynMaterial = BaseMesh->CreateAndSetMaterialInstanceDynamic(0);
+	if (DynMaterial) {
+		DynMaterial->SetVectorParameterValue("Color", Color);
+	}
+}
+
+// запрограммируем смену цвета материала
+void ABaseGeometryActor::OnTimerFired() {
+	if (++TimerCount <= MaxTimerCount) {
+		FLinearColor NewColor = FLinearColor::MakeRandomColor();
+		UE_LOG(LogBaseGeometry, Display, TEXT("TimerCount: %i, Color to set up: %s"), TimerCount, *NewColor.ToString());
+		SetColor(NewColor);
+	}
+	// Если значение переменной TimerCount стало больше чем значение переменной MaxTimerCount то мы будем останавливать Наш Таймер
+	else {
+		UE_LOG(LogBaseGeometry, Display, TEXT("Timer has been stopped!"));
+		GetWorldTimerManager().ClearTimer(TimerHandle);
+	}
+}
