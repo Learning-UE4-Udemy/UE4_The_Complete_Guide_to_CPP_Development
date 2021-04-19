@@ -45,10 +45,11 @@ void ABaseGeometryActor::HandleMovement() {
 	switch (GeometryData.MoveType) {
 	case EMovementType::Sin: {
 		FVector CurrentLocation = GetActorLocation();
+		if (GetWorld()){
 		float Time = GetWorld()->GetTimeSeconds();
 		CurrentLocation.Z = InitialLocation.Z + GeometryData.Amplitude * FMath::Sin(GeometryData.Frequency * Time);
-
 		SetActorLocation(CurrentLocation);
+		}
 	}	break;
 	case EMovementType::Static: break;
 	default: break;
@@ -73,9 +74,10 @@ void ABaseGeometryActor::PrintStringTypes() {
 
 	FString Stat = FString::Printf(TEXT(" \n == All Stat == \n %s \n %s \n %s"), *WeaponsNumStr, *HealthStr, *IsDeadStr);
 	UE_LOG(LogBaseGeometry, Warning, TEXT("%s"), *Stat);
-
+	if (GEngine) {
 	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, Name);
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, Stat, false, FVector2D(1.5f, 1.5f));
+	}
 }
 
 void ABaseGeometryActor::PrintTransform() {
@@ -96,6 +98,7 @@ void ABaseGeometryActor::PrintTransform() {
 // При первом вызове функции SetColor() динамический материал будет создан, 
 // при повторном вызове SetColor() будет использоваться указатель на него.
 void ABaseGeometryActor::SetColor(const FLinearColor& Color) {
+	if (!BaseMesh) return;
 	UMaterialInstanceDynamic* DynMaterial = BaseMesh->CreateAndSetMaterialInstanceDynamic(0);
 	if (DynMaterial) {
 		DynMaterial->SetVectorParameterValue("Color", Color);

@@ -46,6 +46,9 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* BaseMesh;
 
+	//  Тела Небольших функции Seters and Geters находятся в Хедере
+	void SetGeometryData(const FGeometryData& Data) { GeometryData = Data; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
