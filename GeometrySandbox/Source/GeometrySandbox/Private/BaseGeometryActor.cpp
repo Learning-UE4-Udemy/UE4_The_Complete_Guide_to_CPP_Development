@@ -34,6 +34,12 @@ void ABaseGeometryActor::BeginPlay() {
 	GetWorldTimerManager().SetTimer(TimerHandle, this, &ABaseGeometryActor::OnTimerFired, GeometryData.TimerRate, true);
 }
 
+void ABaseGeometryActor::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+	UE_LOG(LogBaseGeometry, Error, TEXT("Actor is dead %s"), *GetName());
+
+	Super::EndPlay(EndPlayReason);
+}
+
 // Called every frame
 void ABaseGeometryActor::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
@@ -111,10 +117,12 @@ void ABaseGeometryActor::OnTimerFired() {
 		FLinearColor NewColor = FLinearColor::MakeRandomColor();
 		UE_LOG(LogBaseGeometry, Display, TEXT("TimerCount: %i, Color to set up: %s"), TimerCount, *NewColor.ToString());
 		SetColor(NewColor);
+		OnColorChanged.Broadcast(NewColor, GetName());
 	}
 	// Если значение переменной TimerCount стало больше чем значение переменной MaxTimerCount то мы будем останавливать Наш Таймер
 	else {
 		UE_LOG(LogBaseGeometry, Display, TEXT("Timer has been stopped!"));
 		GetWorldTimerManager().ClearTimer(TimerHandle);
+		OnTimerFinished.Broadcast(this);
 	}
 }
