@@ -8,7 +8,7 @@
 
 // Sets default values
 ASTUBaseCharacter::ASTUBaseCharacter(const FObjectInitializer& ObjInit)
-    :Super(ObjInit.SetDefaultSubobjectClass<USTUCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+    : Super(ObjInit.SetDefaultSubobjectClass<USTUCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -50,11 +50,15 @@ void ASTUBaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 void ASTUBaseCharacter::MoveForward(float Amount)
 {
     IsMovingFarward = Amount > 0.0f;
+    if (Amount == 0.0f)
+        return;
     AddMovementInput(GetActorForwardVector(), Amount);
 }
 
 void ASTUBaseCharacter::MoveRight(float Amount)
 {
+    if (Amount == 0.0f)
+        return;
     AddMovementInput(GetActorRightVector(), Amount);
 }
 
@@ -71,4 +75,15 @@ void ASTUBaseCharacter::OnStopRunning()
 bool ASTUBaseCharacter::IsRunning() const
 {
     return WantsToRun && IsMovingFarward && !GetVelocity().IsZero();
+}
+
+float ASTUBaseCharacter::GetMovementDirection() const
+{
+    if (GetVelocity().IsZero())
+        return 0.0f;
+    const auto VelocityNormal = GetVelocity().GetSafeNormal();
+    const auto AngleBetween = FMath::Acos(FVector::DotProduct(GetActorForwardVector(), VelocityNormal));
+    const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
+    const auto Degrees = FMath::RadiansToDegrees(AngleBetween);
+    return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 }
