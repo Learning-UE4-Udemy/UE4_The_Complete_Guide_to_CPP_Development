@@ -11,7 +11,6 @@ class UCameraComponent;
 class USTUHealthComponent;
 class UTextRenderComponent;
 
-
 UCLASS()
 class SHOOTTHEMUP_API ASTUBaseCharacter : public ACharacter
 {
@@ -32,6 +31,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* HealthTextComponent;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* DeathAnimMontage;
 
     virtual void BeginPlay() override;
 
@@ -55,4 +57,7 @@ private:
 
     void OnStartRunning();
     void OnStopRunning();
+
+    void OnDeath();
+    void OnHealthChanged(float Health);
 };
